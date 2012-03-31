@@ -3,6 +3,7 @@
 #endif
 
 #include "baz_rtl_source_c.h"
+#include <stdio.h>
 /*
  * Elonics E4000 tuner driver, taken from the kernel driver that can be found
  * on http://linux.terratec.de/tv_en.html
@@ -158,22 +159,32 @@ e4000_SetRfFreqHz(
 
 //	if(Gainmanual(pTuner) != E4000_1_SUCCESS)
 //		goto error_status_execute_function;
+    fprintf(stderr, "e4000_SetRfFreqHz 1\n");
 
 	if(E4000_gain_freq(pTuner, RfFreqKhz) != E4000_1_SUCCESS)
 		goto error_status_execute_function;
 
+    fprintf(stderr, "e4000_SetRfFreqHz 2\n");
+
 	if(PLL(pTuner, CrystalFreqKhz, RfFreqKhz) != E4000_1_SUCCESS)
 		goto error_status_execute_function;
+
+    fprintf(stderr, "e4000_SetRfFreqHz 3\n");
 
 	if(LNAfilter(pTuner, RfFreqKhz) != E4000_1_SUCCESS)
 		goto error_status_execute_function;
 
+    fprintf(stderr, "e4000_SetRfFreqHz 4\n");
+
 	if(freqband(pTuner, RfFreqKhz) != E4000_1_SUCCESS)
 		goto error_status_execute_function;
+
+    fprintf(stderr, "e4000_SetRfFreqHz 5\n");
 
 	if(DCoffLUT(pTuner) != E4000_1_SUCCESS)	// Enabling this results in big increase in noise floor
 		goto error_status_execute_function;
 
+    fprintf(stderr, "e4000_SetRfFreqHz 6\n");
 //	if(GainControlauto(pTuner) != E4000_1_SUCCESS)	// CHANGED: Leaving it manual
 //		goto error_status_execute_function;
 
@@ -303,7 +314,7 @@ int tunerreset(baz_rtl_source_c* pTuner)
 	// For dummy I2C command, don't check executing status.
 	status=I2CWriteByte (pTuner, 200,2,writearray[0]);
 	status=I2CWriteByte (pTuner, 200,2,writearray[0]);
-	//printf("\nRegister 0=%d", writearray[0]);
+    //printf("\nRegister 0=%d", writearray[0]);
 	if(status != E4000_I2C_SUCCESS)
 	{
 		return E4000_1_FAIL;
@@ -926,17 +937,17 @@ int PLL(baz_rtl_source_c* pTuner, int Ref_clk, int Freq)
 		VCO_freq=Freq*2;
 	}
 
-	//printf("\nVCOfreq=%d", VCO_freq);
+    printf("\nVCOfreq=%d", VCO_freq);
 //	divider =  VCO_freq * 1000 / Ref_clk;
 	divider =  VCO_freq / Ref_clk;
-	//printf("\ndivider=%d", divider);
+    printf("\ndivider=%d", divider);
 	writearray[0]= divider;
 //	intVCOfreq = divider * Ref_clk /1000;
 	intVCOfreq = divider * Ref_clk;
-	//printf("\ninteger VCO freq=%d", intVCOfreq);
+    printf("\ninteger VCO freq=%d", intVCOfreq);
 //	SigDel=65536 * 1000 * (VCO_freq - intVCOfreq) / Ref_clk;
 	SigDel=65536 * (VCO_freq - intVCOfreq) / Ref_clk;
-	//printf("\nSigma delta=%d", SigDel);
+    printf("\nSigma delta=%d", SigDel);
 	if (SigDel<=1024)
 	{
 		SigDel = 1024;
@@ -946,17 +957,17 @@ int PLL(baz_rtl_source_c* pTuner, int Ref_clk, int Freq)
 		SigDel=64512;
 	}
 	SigDel2 = SigDel / 256;
-	//printf("\nSigdel2=%d", SigDel2);
+    printf("\nSigdel2=%d", SigDel2);
 	writearray[2] = (unsigned char)SigDel2;
 	SigDel3 = SigDel - (256 * SigDel2);
-	//printf("\nSig del3=%d", SigDel3);
+    printf("\nSig del3=%d", SigDel3);
 	writearray[1]= (unsigned char)SigDel3;
 	writearray[3]=(unsigned char)0;
 	status=I2CWriteArray(pTuner, 200,9,5,writearray);
-	//printf("\nRegister 9=%d", writearray[0]);
-	//printf("\nRegister a=%d", writearray[1]);
-	//printf("\nRegister b=%d", writearray[2]);
-	//printf("\nRegister d=%d", writearray[4]);
+    printf("\nRegister 9=%d", writearray[0]);
+    printf("\nRegister a=%d", writearray[1]);
+    printf("\nRegister b=%d", writearray[2]);
+    printf("\nRegister d=%d", writearray[4]);
 	if(status != E4000_I2C_SUCCESS)
 	{
 		return E4000_1_FAIL;
@@ -1173,13 +1184,18 @@ int PLL(baz_rtl_source_c* pTuner, int Ref_clk, int Freq)
 		writearray[2]=7;
 	}
 
+    printf("\nbefore write 7");
 	status=I2CWriteByte (pTuner, 200,7,writearray[2]);
+    printf("\nafter write 7");
 	if(status != E4000_I2C_SUCCESS)
 	{
 		return E4000_1_FAIL;
 	}
 
+    printf("\nbefore write 5");
 	status=I2CWriteByte (pTuner, 200,5,writearray[0]);
+    printf("\nafter write 5");
+	if(status != E4000_I2C_SUCCESS)
 	if(status != E4000_I2C_SUCCESS)
 	{
 		return E4000_1_FAIL;

@@ -969,7 +969,8 @@ gain_failure:
 
 bool baz_rtl_source_c::set_frequency(/*double*/float dFreq)
 {
-	//gruel::scoped_lock lock(d_mutex);	// Switched off to improve responsiveness (just don't call this from different threads!)
+    gruel::scoped_lock lock(d_mutex);	// Switched off to improve responsiveness (just don't call this from different threads!)
+    fprintf(stderr, _T("set_frequency"));
 
 	set_i2c_repeater(1);
 	
